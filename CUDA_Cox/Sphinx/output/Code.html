@@ -1,0 +1,341 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>CUDA-Cox Package &mdash; CUDA_Cox 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CUDA_Cox 1.0 documentation" href="Documentation.html" />
+    <link rel="prev" title="Brief intorduction to Cox method" href="Project.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Project.html" title="Brief intorduction to Cox method"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="Documentation.html">CUDA_Cox 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="cuda-cox-package">
+<h1>CUDA-Cox Package<a class="headerlink" href="#cuda-cox-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-Cox_Method">
+<span id="cox-method-module"></span><h2>Cox Method module<a class="headerlink" href="#module-Cox_Method" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="Cox_Method.Cox_Method">
+<em class="property">class </em><code class="descclassname">Cox_Method.</code><code class="descname">Cox_Method</code><span class="sig-paren">(</span><em>nn</em>, <em>maxi</em>, <em>target</em>, <em>tsp</em>, <em>delta</em>, <em>alphas=10</em>, <em>alphar=0.1</em>, <em>gm=0.0955</em><span class="sig-paren">)</span><a class="headerlink" href="#Cox_Method.Cox_Method" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the main Cox class containing implementation of both Z-value algorithms as well as Hessisn function. The parts     that are common between algorithms are computed at instance initialization. In the main file, either alg1() or alg2()     should be called as the Hessian is called in both of them internally.</p>
+<dl class="method">
+<dt id="Cox_Method.Cox_Method.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>nn</em>, <em>maxi</em>, <em>target</em>, <em>tsp</em>, <em>delta</em>, <em>alphas=10</em>, <em>alphar=0.1</em>, <em>gm=0.0955</em><span class="sig-paren">)</span><a class="headerlink" href="#Cox_Method.Cox_Method.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize and calculate the variables that are needed for z-value and hessian calculation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nn</strong> &#8211; Number of neurons (or cluster of neurons) in the network. This contains all the neurons and not only the refernence neurons.</li>
+<li><strong>maxi</strong> &#8211; The length of reference spike trains varies. This parameter defines the length of the longest reference spike train.</li>
+<li><strong>target</strong> &#8211; The array of target spike train.</li>
+<li><strong>tsp</strong> &#8211; The matrix of reference spike trains. The size of this matrix is (maxi x nn-1) where each column corresponds        to a reference spike train and in case the length of the spike train is shorter than &#8220;maxi&#8221;, it should be padded by zeros.</li>
+<li><strong>delta</strong> &#8211; The array of propagation delays, if known, from the references to the target neuron. It will be assigned as 0 in case it is not defined.</li>
+<li><strong>alphas</strong> &#8211; Defines decay of postsynaptic potential (default value is 10ms)</li>
+<li><strong>alphar</strong> &#8211; Defines rise of postsynaptic potential (default value is 0.1ms)</li>
+<li><strong>gm</strong> &#8211; This parameter normalizes the maximum of the influence function to one. With alphas = 10ms and alphar = 0.1ms, this         will be initialized to 0.955 by default.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Main internal variables:</p>
+<ul class="simple">
+<li>p: Number of reference neurons.</li>
+<li>gamma0: Defins the confidence level, used for calculating standard confidence interval of betahats.</li>
+<li>pval: The p-value used for calculating the specific quantile of the normal distribution.</li>
+<li>tol: The threshold of the newton-raphson iterations. If the difference between two consecutive estimates in newton-raphson iterations is lower than this variable, the iteration will stop.</li>
+<li>isi: Interspike intervals of target neurons.</li>
+<li>isiat: The matrix of interspike intervals of all reference spike trains.</li>
+<li>tspamt: The matrix of spikes of all reference neurons.</li>
+<li>inda: Each row of this matrix, contains the sorted indices of interspike intervals of target neuron which is tailored with the corresponding delay of that reference neuron.</li>
+<li>z: The 3-D matrix of Z-values</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="Cox_Method.Cox_Method.alg1">
+<code class="descname">alg1</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Cox_Method.Cox_Method.alg1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of the first Z-value algorithm. At the end of this implementation, the hessian function is called internally.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The array of betahats for each reference spike train as well as the confidence interval corresponding to each betahat value.</td>
+</tr>
+</tbody>
+</table>
+<p>Main internal variables:</p>
+<ul class="simple">
+<li>mod_z1: The CUDA kernel of the first algorithm.</li>
+<li>t1 (in kernel): Backward recurrence time.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="Cox_Method.Cox_Method.alg2">
+<code class="descname">alg2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Cox_Method.Cox_Method.alg2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of the second Z-value algorithm. At the end of this implementation, the hessian function is called internally.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The array of betahats for each reference spike train as well as the confidence interval corresponding to each betahat value.</td>
+</tr>
+</tbody>
+</table>
+<p>Main internal variables:</p>
+<ul class="simple">
+<li>mod_z2: The CUDA kernel of the second algorithm.</li>
+<li>t1 (in kernel): Backward recurrence time.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="Cox_Method.Cox_Method.hessian">
+<code class="descname">hessian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Cox_Method.Cox_Method.hessian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implementation of the Hessian function. This method is called from Alg1() or Alg2() methods. It uses thte z_values calculated             by them to calculate the Hessian. Then the array of betahats for each reference spike train as well as the confidence interval             corresponding to each betahat value are returned to them.</p>
+<p>Main internal variables:</p>
+<ul class="simple">
+<li>mod_p1: The CUDA kernel of the part 1 of Equation 8 defined in the paper.</li>
+<li>mod_p2: The CUDA kernel of the part 2 of Equation 8 defined in the paper.</li>
+<li>mod_p3: The CUDA kernel of the part 3 of Equation 8 defined in the paper.</li>
+<li>mod_h: The CUDA kernel of the Hessian function that uses the part1, part2 and part3 to calculate the final result.</li>
+<li>scc: 3D matrix resulted from summation of diagonal values of Z multiplied by corresponding betahat for calculating the loglikelihood</li>
+<li>ssum: 2D matrix resulted from sumation of scc 3rd dimension.</li>
+<li>sumte: The sumation of diagonal values of ssum.</li>
+<li>score: 2D matrix of log-likelihood first derivative</li>
+<li>vi: 2D matrix of hessians.</li>
+<li>part1: 3D matrix of values for the part1 of equation 8 in the paper.</li>
+<li>part2: 3D matrix of values for the part2 of equation 8 in the paper.</li>
+<li>part3: 3D matrix of values for the part3 of equation 8 in the paper.</li>
+<li>bet: previous estimate of the betahats, initalized as 0.2.</li>
+<li>estimate: latest estimate of the betahats.</li>
+<li>betaci: Matrix of confidence intervals of betahats.</li>
+</ul>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-main_CRCNS">
+<span id="crcns-main-function"></span><h2>CRCNS Main function<a class="headerlink" href="#module-main_CRCNS" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="main_CRCNS.main_CRCNS">
+<code class="descclassname">main_CRCNS.</code><code class="descname">main_CRCNS</code><span class="sig-paren">(</span><em>data_path</em>, <em>recording_length</em>, <em>window_length</em>, <em>overlap</em><span class="sig-paren">)</span><a class="headerlink" href="#main_CRCNS.main_CRCNS" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the main function that applies the cox method on the pickle data saved by CRCNS_to_COX. This function plots the     adjacency matrix of connection weights in a window-based manner.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_path</strong> &#8211; The path to the pickle data file.</li>
+<li><strong>recording_length</strong> &#8211; Total duration of recording of the dataset. This can be found in the metadata-tables of the     experiments too, e.g. in case of ec012ec.187 experiment.</li>
+<li><strong>window_length</strong> &#8211; The length of the window on which the cox method is going to apply on.</li>
+<li><strong>overlap</strong> &#8211; the overlap of the window with its previous window.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Main internal variables:</p>
+<ul class="simple">
+<li>nn: Total number of neurons in the network.</li>
+<li>p: Number of reference neurons in the network.</li>
+<li>win_num: Number of windows on data based on the length of data, length of window and overlap size.</li>
+<li>final_adjacency: The result of the function in form of adjaceency matrix.</li>
+<li>l_band: Lower band of the window.</li>
+<li>u_band: Higher band of the window.</li>
+<li>betahats: Matrix of betahat values in the network.</li>
+<li>betacis: Matrix of confidence interval of betahat values in the network.</li>
+<li>Xs: Reference neuron indices (x-axis) for drawing the final connectivity matrix</li>
+<li>Ys: Target neuron indices (y-axis) for drawing the final connectivity matrix</li>
+<li>Ss: Strength of the connection between each target neuron and corresponding reference neurons</li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="module-main_rst">
+<span id="rst-main-function"></span><h2>rst Main Function<a class="headerlink" href="#module-main_rst" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="main_rst.main_rst">
+<code class="descclassname">main_rst.</code><code class="descname">main_rst</code><span class="sig-paren">(</span><em>data_path</em>, <em>nn</em><span class="sig-paren">)</span><a class="headerlink" href="#main_rst.main_rst" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the main function that applies the cox method on the rst data prodcued by ELIF simulator that is based on     ELIF model (the software can be found from the following web-site: <a class="reference external" href="http://www.tech.plymouth.ac.uk/infovis">http://www.tech.plymouth.ac.uk/infovis</a>.) This     function plots the resulted connectivity map.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_path</strong> &#8211; The path to the .rst data file.</li>
+<li><strong>nn</strong> &#8211; Total number of neurons in the network.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Main internal variables:</p>
+<ul class="simple">
+<li>p: Number of reference neurons in the network.</li>
+<li>betahats: Matrix of betahat values in the network.</li>
+<li>betacis: Matrix of confidence interval of betahat values in the network.</li>
+<li>target:  Target spike train</li>
+<li>maxi: The length of reference spike trains varies. This parameter defines the length of the longest reference spike train.</li>
+<li>tsp: The matrix of reference spike trains. The size of this matrix is (maxi x nn-1) where each column corresponds    to a reference spike train and in case the length of the spike train is shorter than &#8220;maxi&#8221;, it should be padded by zeros.</li>
+<li>to_r: The output matrix of the main_rst function expressing the connections and corresponding reference and target neurons.</li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="module-Config_Generator">
+<span id="elif-simulator-config-generator"></span><h2>Elif Simulator Config Generator<a class="headerlink" href="#module-Config_Generator" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="Config_Generator.config_generator">
+<code class="descclassname">Config_Generator.</code><code class="descname">config_generator</code><span class="sig-paren">(</span><em>number_of_neurons</em>, <em>max_conn_per_neuron</em>, <em>save_path</em><span class="sig-paren">)</span><a class="headerlink" href="#Config_Generator.config_generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>An ELIF model neuron can be simulated using software from the following web-site: <a class="reference external" href="http://www.tech.plymouth.ac.uk/infovis">http://www.tech.plymouth.ac.uk/infovis</a>. To run    the simulation, the parameters of ELIF neurons and their coupling should be specified. This function generates the     configuration files needed for that software.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>number_of_neurons</strong> &#8211; Number of neurons in the network.</li>
+<li><strong>max_conn_per_neuron</strong> &#8211; maximum number of connection that each neuron might have with other neurons.</li>
+<li><strong>save_path</strong> &#8211; path to save the generated configuration files.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-CRCNS_to_COX">
+<span id="crcns-to-cox"></span><h2>CRCNS to Cox<a class="headerlink" href="#module-CRCNS_to_COX" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="CRCNS_to_COX.CRCNS_to_Cox">
+<code class="descclassname">CRCNS_to_COX.</code><code class="descname">CRCNS_to_Cox</code><span class="sig-paren">(</span><em>data_path</em>, <em>filename_prefix</em>, <em>electrodes</em>, <em>path_to_save</em><span class="sig-paren">)</span><a class="headerlink" href="#CRCNS_to_COX.CRCNS_to_Cox" title="Permalink to this definition">¶</a></dt>
+<dd><p>This file convert the data from CRCNS datasets to a format usable for Cox method.     The main file used from the datasets are &#8221;.clu&#8221; and &#8221;.res&#8221; files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data_path</strong> &#8211; Path of the dataset downloaded from www.CRCNS.org</li>
+<li><strong>data_path</strong> &#8211; The prefix of the files entitled after the name of the experiment, e.g. ec012ec.187</li>
+<li><strong>electrodes</strong> &#8211; Number of electrodes in the measurement.</li>
+<li><strong>path_to_save</strong> &#8211; Path for saving the result (it will be imported in main file of cox method)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="Documentation.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">CUDA-Cox Package</a><ul>
+<li><a class="reference internal" href="#module-Cox_Method">Cox Method module</a></li>
+<li><a class="reference internal" href="#module-main_CRCNS">CRCNS Main function</a></li>
+<li><a class="reference internal" href="#module-main_rst">rst Main Function</a></li>
+<li><a class="reference internal" href="#module-Config_Generator">Elif Simulator Config Generator</a></li>
+<li><a class="reference internal" href="#module-CRCNS_to_COX">CRCNS to Cox</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Project.html"
+                        title="previous chapter">Brief intorduction to Cox method</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/Code.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Project.html" title="Brief intorduction to Cox method"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="Documentation.html">CUDA_Cox 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Vafa Andalibi.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+    </div>
+  </body>
+</html>
