@@ -14,7 +14,7 @@ This collection available here regroups:
 
 - a model simulating the stimulation of a Spiking Neural Network for simple pattern recognition (difference between cross and circle). This model was presented in SPLST conference in 2015.
 
-- an implementation of the Cox method for the analysis of network effective connectivity from spike-timing processes
+- an implementation of the Cox method for the analysis of network effective connectivity from spike-timing processes (also developed by MSc. Vafa Andalibi)
 
 - a lightweight Spiking Neural Network simulator developed in Lua language (simulator developed by Ville Lehtola)
 
