@@ -1,3 +1,5 @@
+Sub-project developed by Alexis Fabre during his bachelor thesis internship
+
 Create 2 populations of neurons
 	-	one responding to mnist stimulus
 	-	the other to the corresponding labels and to the previous population
