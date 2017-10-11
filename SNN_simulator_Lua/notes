@@ -1,0 +1,72 @@
+notes
+
+weights/connections
+each row describes the connections of a single neuron to others
+w_ij is the weight from i to j
+
+presynaptic traces:
+each row is the trace of presynaptic neurons of that neuron
+pre_ij is the trace of presynaptic neuron i, connected to j
+
+postsynaptic traces:
+each element is the trace of that neuron
+post_j
+
+when firing, each presynaptic connection is updated positively:
+pre_j are the presynaptic connections of the firing neuron j
+found in column j of conn matrix
+calculate matrix with pre_ij in fired columns, zero elswhere
+do a masked add with connectivity mask /w prev matrix to weights
+total trace for synapse i is the sum of all traces left by firings of js
+
+pre_j is the presynaptic trace left by the firing of neuron j
+when j fires, its presynaptic connections are updated by their 
+
+and each postsynaptic negatively:
+post_j of the connected neuron has the trace to update w_ij,
+where i is the firing neuron
+row i of connection matrix tells the postsynaptic neurons j
+since j is postsynaptic to i, w_ij:s must update
+w_ij updates by post_j etc.
+row i of conn matrix * post_j to row i of weights
+weights = weights - A-(weights) .* (conns * repl(post_j))
+
+when a postsynaptic neuron fires after a presynaptic one, the connection strengthens
+when a presynaptic neuron fires after a postsynaptic one, the connection weakens
+
+post_j are traces of postsynaptic firing
+thus if a presynaptic neuron fires, its connections will weaken according to postsynaptic traces
+
+pre_i are traces of presynaptic firing
+thus if a postsynaptic neuron j fires, all weights w_ij are strengthened according to corresponding pre_i
+i.e. the column j will b e updated by the vector pre_i
+
+for all (n, w, n') in { (n, w, n') | (n, w, n') in connections, n' in spikes}:
+  increase w by a+*pretrace(n)
+
+increase columns corresponding to spikes with each neurons own pretrace
+
+for all (n, w, n') in { (n, w, n') | (n, w, n') in connections, n in spikes}:
+  decrease w by a-*posttrace(n')
+
+decrase rows corresponding to spikes with each neurons posttrace
+(each outward connection from each spiked neuron is weakened by the connected neurons posttrace (recent activity))
+
+--[[
+dv/dt = k(v-v_t)(v-v_r) - u + I
+      = kv² - k*v*v_r - k*v*v_t + k*v_r*v_t - u + I
+du/dt = a(b(v-v_r) - u)
+      = abv - abv_r - au
+v(t) =
+
+a = math.sqrt(k)
+b = math.sqrt(4*v_t*v_r-k*math.pow(v_t+v_r, 2))
+v = 0.5 * ((-1/a*b) * math.tan(0.5 * (c-1) * b + v_t + v_r)
+
+v, u = symbols('v, u', function = True)
+vr, vt, t, I, k, a, b = symbols('vr vt t I k a b')
+eq = (Eq(Derivative(v(t), t), k*(v(t)-vr)*(v(t)-vt) - u(t) + I), Eq(Derivative(y(t), t), a*(b*(v-vr) - u)))
+dsolve(eq)
+
+du/dt = au -> u(t) = c e^(at)
+]]

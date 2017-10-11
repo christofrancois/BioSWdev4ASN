@@ -1,0 +1,11 @@
+data1 - first good simulation - after removing latent skiping neurons
+data2 - increasing inouts to make "hidden" neurons spike more
+        they did not spike more than in test 1, possibly due to regulation from inhibitory neurons
+data3 - increased scale factor from 2 to 3 for a total of 3000 neurons to see if that would
+        increase fire rate (I'm trying to get the fire rate get similar to the fire rate of input)
+        no significant difference - note that the number of inhibitory neurons grew as well with the increase in scale
+        decided to go back to scale 2 since scale 3 simulation took so much more time to finish
+data4 - added 10(*scale) latent spiking neurons - no significant effect
+data5 - increased latent spiking neurons to 25 - the network appears to spike less with more pronounced frequentic synchronous spikings
+[no data] - increased number of latent spikers to 50 -> erratic behaviour soon after beginning test (non-stop spiking)
+data6 - latent spikers at 40, changed input type to proper spikes that increase AMPA/NMDA instead of steady current. Output spikes still very infrequent.
